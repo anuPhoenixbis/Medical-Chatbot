@@ -6,3 +6,5 @@ flask
 pypdf
 python-dotenv
 langchain_community
+
+-e .
