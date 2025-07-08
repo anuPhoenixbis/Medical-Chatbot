@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Medical Chatbot</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <div class="container">
+    <h1>🩺 Medical Chatbot</h1>
+    <div class="chat-box" id="chat-box"></div>
+    
+    <form id="chat-form">
+      <input type="text" id="user-input" placeholder="Ask me anything about health..." autocomplete="off" required />
+      <button type="submit">Send</button>
+    </form>
+  </div>
+
+  <script>
+    const chatBox = document.getElementById('chat-box');
+    const chatForm = document.getElementById('chat-form');
+    const userInput = document.getElementById('user-input');
+
+    function appendMessage(sender, message) {
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add('message', sender);
+      messageDiv.innerText = message;
+      chatBox.appendChild(messageDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    chatForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const message = userInput.value.trim();
+      if (!message) return;
+
+      appendMessage('user', `You: ${message}`);
+      userInput.value = '';
+
+      appendMessage('bot', "Bot is typing...");
+
+      try {
+        const response = await fetch('/ask', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: message })
+        });
+        const data = await response.json();
+        const botMessages = document.querySelectorAll('.bot');
+        botMessages[botMessages.length - 1].remove(); // remove "Bot is typing..."
+        appendMessage('bot', `Bot: ${data.answer}`);
+      } catch (error) {
+        console.error(error);
+        appendMessage('bot', "Bot: Sorry, something went wrong.");
+      }
+    });
+  </script>
+</body>
+</html>
