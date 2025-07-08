@@ -6,5 +6,7 @@ flask
 pypdf
 python-dotenv
 langchain_community
+Pillow
+huggingface-hub<0.20  # Ensure compatibility with sentence-transformers
 
 -e .
