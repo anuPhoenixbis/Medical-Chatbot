@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"         # Ollama API port
+    command: >
+      sh -c "ollama serve &
+            sleep 5 &&
+            ollama pull TheBloke/Llama-2-7B-Chat-GGUF:Q4_K_M"
+    volumes:
+      - ./ollama_data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 10s
+      retries: 5
+
+  app:
+    build: .
+    container_name: medical-chatbot
+    depends_on:
+      ollama:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    volumes:
+      - .:/app

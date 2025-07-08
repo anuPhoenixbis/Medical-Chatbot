@@ -51,8 +51,11 @@ chain_type_kwargs={"prompt" : prompt}
 #     "prompt": prompt,
 # }
 
+ollama_host = os.getenv("OLLAMA_HOST", "http://localhost:11434")
+
 llm = Ollama(
-    model="llama2",
+    base_url=ollama_host,
+    model="TheBloke/Llama-2-7B-Chat-GGUF:Q4_K_M",
     temperature=0.7,
     top_p=0.9,
     repeat_penalty=1.1,
