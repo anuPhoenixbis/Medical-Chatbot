@@ -1,2 +1,6 @@
 .env
 chroma_db
+# Docker ignore
+Dockerfile
+docker-compose.yml
+nvidia_chroma_db
