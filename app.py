@@ -56,7 +56,7 @@ llm = Ollama(
     temperature=0.7,
     top_p=0.9,
     repeat_penalty=1.1,
-    num_predict=512  # Use this instead of max_tokens
+    num_predict=1024  # Use this instead of max_tokens
 )
 
 # qa_chain = load_qa_chain(
@@ -79,8 +79,14 @@ def prompt_wrapper(input_dict):
 
 # LCEL-style QA chain using Ollama
 chain = (
-    RunnableMap({"context": retriever, "question": lambda x: x["question"]})
-    | prompt_wrapper
+    RunnableMap({
+        "question": lambda x: x["question"],          # plain string
+        "context": lambda x: retriever.get_relevant_documents(x["question"])  # returns list of docs
+    })
+    | (lambda inputs: prompt.format(
+        question=inputs["question"],
+        context="\n".join(doc.page_content for doc in inputs["context"])
+    ))
     | llm
     | StrOutputParser()
 )
